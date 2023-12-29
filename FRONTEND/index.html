@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Chatbot Assistant de Cuisine</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Chatbot Assistant de Cuisine</h1>
+    <div class="row">
+      <div class="col-md-6">
+        <input type="text" class="form-control" id="requete">
+      </div>
+      <div class="col-md-6">
+        <button type="button" class="btn btn-primary" id="bouton-micro">Micro</button>
+        <button type="button" class="btn btn-success" id="bouton-envoyer">Envoyer</button>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <div id="reponse"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      // Initialisation du bouton micro
+      var microphone = new AudioRecorder();
+      microphone.addEventListener("onAudioStart", function() {
+        console.log("Microphone démarré");
+      });
+      microphone.addEventListener("onAudioStop", function() {
+        console.log("Microphone arrêté");
+      });
+      microphone.addEventListener("onAudioData", function(data) {
+        // Conversion du signal audio en texte
+        var text = new SpeechRecognition().recognize(data);
+        // Affichage du texte dans la zone de texte
+        $("#requete").val(text);
+      });
+      $("#bouton-micro").click(function() {
+        microphone.start();
+      });
+
+      // Initialisation du bouton envoyer
+      $("#bouton-envoyer").click(function() {
+        // Récupération de la requête
+        var requete = $("#requete").val();
+        // Envoi de la requête au backend
+        $.ajax({
+          url: "/recette",
+          method: "POST",
+          data: {
+            requete: requete
+          },
+          success: function(data) {
+            // Affichage de la réponse
+            $("#reponse").html(data);
+          },
+          error: function(error) {
+            console.log(error);
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
